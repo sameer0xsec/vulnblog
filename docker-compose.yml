@@ -1,0 +1,55 @@
+version: "3.8"
+services:
+  db:
+    image: mysql:8.0
+    container_name: vulnblog-db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass123       # VULN: weak root password
+      MYSQL_DATABASE: vulnblog
+      MYSQL_USER: vulnblog
+      MYSQL_PASSWORD: vulnblog123            # VULN: weak app DB password
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - dbdata:/var/lib/mysql
+
+  backend:
+    build: ./backend
+    container_name: vulnblog-backend
+    environment:
+      FLASK_ENV: development        # VULN: debug mode enabled, see app/__init__.py
+      SECRET_KEY: changeme          # VULN: weak, hardcoded Flask session secret
+      DB_HOST: db
+      DB_USER: vulnblog
+      DB_PASS: vulnblog123
+      DB_NAME: vulnblog
+    depends_on:
+      - db
+    volumes:
+      - uploads:/app/uploads
+    ports:
+      - "5000:5000"
+
+  frontend:
+    build: ./frontend
+    container_name: vulnblog-frontend
+    depends_on:
+      - backend
+    ports:
+      - "5173:5173"
+
+  apache:
+    build: ./apache
+    container_name: vulnblog-apache
+    depends_on:
+      - backend
+      - frontend
+    ports:
+      - "8081:80"
+    volumes:
+      - uploads:/var/www/uploads
+
+volumes:
+  dbdata:
+  uploads:
