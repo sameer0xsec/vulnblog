@@ -132,6 +132,6 @@ VulnBlog contains **26+ intentional security vulnerabilities** accompanied by in
 
 ---
 
-## License & Legal Notice
+
 
 This repository is strictly intended for educational, defensive, and authorized penetration testing training. Any unauthorized use against targets without written permission is strictly prohibited.
